@@ -1,10 +1,6 @@
-/** Message class for message.ly */
-
 const db = require("../db");
 const ExpressError = require("../expressError");
 
-
-/** Message on the site. */
 
 class Message {
 
