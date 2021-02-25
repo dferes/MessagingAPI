@@ -13,6 +13,8 @@ class User {
     this.lastName = lastName;
     this.phone = phone;
   }
+
+
   /* register new user -- returns {username, password, first_name, last_name, phone} */
   async register() { 
     try {
@@ -33,9 +35,11 @@ class User {
     }
   }
 
+
   async setHashedPassword() {
     this.password = await bcrypt.hash(this.password, BCRYPT_WORK_FACTOR);
   }
+
 
   /* Authenticate: is this username/password valid? Returns boolean. */
   static async authenticate(username, password) { 
@@ -49,6 +53,7 @@ class User {
       return user ? await bcrypt.compare(password, user.password) : false;
   }
 
+
   /* Update last_login_at for user */
   async updateLoginTimestamp() {
     const newLoginTime = await db.query(
@@ -60,6 +65,7 @@ class User {
     return newLoginTime.rows[0];
   }
 
+
   /* All: basic info on all users: [{username, first_name, last_name, phone}, ...] */
   static async all() { 
     const allUsers = await db.query(
@@ -68,7 +74,6 @@ class User {
     );
     return allUsers.rows;
   }
-
 
 
   /* Get: get user by username */
@@ -85,54 +90,27 @@ class User {
   }
 
 
-  /** Return  messages from this user.
-   *
-   * [{id, to_user, body, sent_at, read_at}]
-   *
-   * where to_user is  (WTF is this asking??)
-   *   {username, first_name, last_name, phone}
-   */
-
+  /* Return  messages from this user. [{id, to_user, body, sent_at, read_at}] */
   async messagesFrom() { 
     const allMessagesFromUser = await db.query(
       `SELECT id, to_username, body, sent_at, read_at
       FROM messages
       WHERE from_username = $1`,
       [this.username]);
-    return allMessagesFromUser.rows.map(message => {
-      message = { 
-        id:     message.id,
-        toUser: message.to_user,
-        body:   message.body,
-        sentAt: message.sent_at,
-        readAt: message.read_at
-      }
-    });
+
+    return allMessagesFromUser.rows;
   }
 
-  /** Return messages to this user.
-   *
-   * [{id, from_user, body, sent_at, read_at}]
-   *
-   * where from_user is
-   *   {id, first_name, last_name, phone}
-   */
 
+  /* Return messages to this user [{id, from_user, body, sent_at, read_at}] */
   async messagesTo() { 
-    const allMessagesFromUser = await db.query(
+    const allMessagesToUser = await db.query(
       `SELECT id, from_username, body, sent_at, read_at
       FROM messages
       WHERE to_username = $1`,
       [this.username]);
-    return allMessagesFromUser.rows.map(message => {
-      message = { 
-        id:     message.id,
-        fromUser: message.from_user,
-        body:   message.body,
-        sentAt: message.sent_at,
-        readAt: message.read_at
-      }
-    });
+
+      return allMessagesToUser.rows;
   }
 }
 
