@@ -4,32 +4,25 @@ const ExpressError = require("../expressError");
 
 class Message {
 
-  /** register new message -- returns
-   *    {id, from_username, to_username, body, sent_at}
-   */
-
-  static async create({from_username, to_username, body}) {
+  /* register new message -- returns {id, from_username, to_username, body, sent_at} */
+  static async create(from_username, to_username, body) {
+    console.log(from_username, to_username, body);
     const result = await db.query(
-        `INSERT INTO messages (
-              from_username,
-              to_username,
-              body,
-              sent_at)
-            VALUES ($1, $2, $3, current_timestamp)
-            RETURNING id, from_username, to_username, body, sent_at`,
+        `INSERT INTO messages (from_username, to_username, body, sent_at)
+        VALUES ($1, $2, $3, current_timestamp)
+        RETURNING id, from_username, to_username, body, sent_at`,
         [from_username, to_username, body]);
 
     return result.rows[0];
   }
 
-  /** Update read_at for message */
-
+  /* Update read_at for message */
   static async markRead(id) {
     const result = await db.query(
         `UPDATE messages
-           SET read_at = current_timestamp
-           WHERE id = $1
-           RETURNING id, read_at`,
+        SET read_at = current_timestamp
+        WHERE id = $1
+        RETURNING id, read_at`,
         [id]);
 
     if (!result.rows[0]) {
