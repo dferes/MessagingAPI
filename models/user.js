@@ -22,7 +22,7 @@ class User {
       const results = await db.query(`
         INSERT INTO users (username, password, first_name, last_name, phone)
         VALUES ($1, $2, $3, $4, $5)
-        RETURNING username, password, first_name, last_name, phone`,
+        RETURNING username, password, first_name AS "firstName", last_name AS "lastName", phone`,
         [this.username, this.password, this.firstName, this.lastName, this.phone]);
 
       return results.rows[0];
@@ -71,6 +71,9 @@ class User {
       `SELECT username, first_name, last_name, phone
       FROM users`
     );
+    if (allUsers.rows.length === 0) {
+      return new ExpressError('User not found', 404)
+    }
     return allUsers.rows;
   }
 
