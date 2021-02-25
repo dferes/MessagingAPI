@@ -2,15 +2,17 @@ const express = require('express');
 const User = require('../models/user');
 const Message = require('../models/message');
 const ExpressError = require('../expressError');
+const { authenticateJWT, ensureLoggedIn, ensureCorrectUser } = require('../middleware/auth');
 
 const router = new express.Router();
 
 
 /* GET / - get list of users.
  * returns {users: [{username, first_name, last_name, phone}, ...]} */
-router.get('/', async () => {
+router.get('/', ensureLoggedIn, async (req, res, next) => {
     try{
-
+        let allUsers = await User.all();
+        return res.status(200).json({ allUsers });
     }catch(e) {
         return next(e);
     }
