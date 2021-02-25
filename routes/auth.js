@@ -1,7 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const ExpressError = require('../expressError');
 const { SECRET_KEY } = require('../config');
 
 const router = new express.Router();
@@ -27,7 +26,6 @@ router.post('/login', async (req, res, next) => {
     }
 
 })
-
 
 
 router.post("/register", async (req, res, next) => {
