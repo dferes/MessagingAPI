@@ -18,9 +18,14 @@ CREATE TABLE messages (
     from_username text NOT NULL REFERENCES users,
     to_username text NOT NULL REFERENCES users,
     body text NOT NULL,
-    sent_at timestamp with time zone NOT NULL,
+    sent_at timestamp with time zone NOT NULL DEFAULT NOW(),
     read_at timestamp with time zone
 );
 
 INSERT INTO users (username, password, first_name, last_name, phone)
-    VALUES ('lennyBoi32', 'password', 'Lenny', 'McKenzy', 1234567890 )
+    VALUES ('lennyBoi32', 'password', 'Lenny', 'McKenzy', 1234567890 ),
+           ('someDude', 'password2', 'Carl', 'Tester', 0987654321 );
+
+INSERT INTO messages (from_username, to_username, body)
+    VALUES ('lennyBoi32', 'someDude', 'Hello Carl' ),
+           ('someDude', 'lennyBoi32', 'Hello Lenny' );
