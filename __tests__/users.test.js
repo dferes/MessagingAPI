@@ -41,12 +41,12 @@ function delay(ms) {
   return new Promise( resolve => setTimeout(resolve, ms));
 }
 
-describe("Test registration() method of the User class", () => {
+describe("Test register() method of the User class", () => {
   test("can register a user when all db constraints are correct", async () => {
     registeredUser = await testUser.register();
     expect(registeredUser.username).toBe(testUser.username);
-    expect(registeredUser.first_name).toBe(testUser.firstName);
-    expect(registeredUser.last_name).toBe(testUser.lastName);
+    expect(registeredUser.firstName).toBe(testUser.firstName);
+    expect(registeredUser.lastName).toBe(testUser.lastName);
     expect(registeredUser.phone).toBe(testUser.phone);
     expect(registeredUser.password).not.toBe(undefined);
   });
@@ -135,16 +135,14 @@ describe("Test the get() method of the User class", () => {
     await testUser.register();
     let user = await User.get(testUser.username);
   
-    expect(user).toEqual(
-      {
-        username: 'testUser',
-        first_name: 'Jimmy',
-        last_name: 'McTest',
-        phone: '+14155550000',
-        join_at: expect.any(Date),
-        last_login_at: null
-      }
-    )
+    expect(user).toEqual({
+      username: 'testUser',
+      first_name: 'Jimmy',
+      last_name: 'McTest',
+      phone: '+14155550000',
+      join_at: expect.any(Date),
+      last_login_at: null
+    })
   });
   test("Returns a 404 error message when a non registered username is passed as a parameter", async () => {
     let errorMessage = await User.get('notAUser');
@@ -152,8 +150,6 @@ describe("Test the get() method of the User class", () => {
     expect(errorMessage.message).toEqual('User not found');
   });
 });
-
-
 
 
 describe("Test the messagesFrom() method of the user class", () => {
