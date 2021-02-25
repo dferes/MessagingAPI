@@ -30,7 +30,6 @@ class User {
       if (e.code === '23505') {
         return (new ExpressError("Username taken. Please pick another!", 400));
       }
-        console.log('This is e: -------------->', e);
         return  new ExpressError(e, 500);
     }
   }
