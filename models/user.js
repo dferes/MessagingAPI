@@ -1,5 +1,4 @@
 const bcrypt = require("bcrypt");
-const moment = require("moment");
 const ExpressError = require("../expressError")
 const db = require('../db');
 const { BCRYPT_WORK_FACTOR } = require('../config');
@@ -51,13 +50,14 @@ class User {
   }
 
   /* Update last_login_at for user */
-  static async updateLoginTimestamp(username) {
-    // should I make this be an instance method?? 
-    await db.query(
+  async updateLoginTimestamp() {
+    const newLoginTime = await db.query(
       `UPDATE users 
-      SET last_login_at=$1
-      WHERE username=$2`,
-      [moment().format('LLLL'), username])
+      SET last_login_at = current_timestamp
+      WHERE username=$1
+      RETURNING last_login_at`,
+      [this.username])
+    return newLoginTime.rows[0];
   }
 
   /* All: basic info on all users: [{username, first_name, last_name, phone}, ...] */
@@ -66,37 +66,22 @@ class User {
       `SELECT username, first_name, last_name, phone
       FROM users`
     );
-    return allUsers;
-    // TODO
-    // May need to modify the format of this, test it out to see what it looks like now
+    return allUsers.rows;
   }
 
 
 
-  /** Get: get user by username
-   *
-   * returns {username,
-   *          first_name,
-   *          last_name,
-   *          phone,
-   *          join_at,
-   *          last_login_at } */
-
+  /* Get: get user by username */
   static async get(username) { 
     const user = await db.query(
       `SELECT username, first_name, last_name, phone, join_at, last_login_at 
       FROM users
       WHERE username=$1`,
       [username]);
-    
-    return {
-      username:   user.rows[0].username,
-      firstName:  user.rows[0].first_name,
-      lastName:   user.rows[0].last_name,
-      phone:      user.rows[0].phone,
-      joinAt:     user.rows[0].join_at,
-      lastLogIn:  user.rows[0].last_login_at
+    if (user.rows.length === 0) {
+      return new ExpressError('User not found', 404)
     }
+    return user.rows[0];
   }
 
 
@@ -116,11 +101,11 @@ class User {
       [this.username]);
     return allMessagesFromUser.rows.map(message => {
       message = { 
-          id:     message.id,
-          toUser: message.to_user,
-          body:   message.body,
-          sentAt: message.sent_at,
-          readTt: message.read_at
+        id:     message.id,
+        toUser: message.to_user,
+        body:   message.body,
+        sentAt: message.sent_at,
+        readAt: message.read_at
       }
     });
   }
@@ -133,7 +118,22 @@ class User {
    *   {id, first_name, last_name, phone}
    */
 
-  static async messagesTo(username) { }
+  async messagesTo() { 
+    const allMessagesFromUser = await db.query(
+      `SELECT id, from_username, body, sent_at, read_at
+      FROM messages
+      WHERE to_username = $1`,
+      [this.username]);
+    return allMessagesFromUser.rows.map(message => {
+      message = { 
+        id:     message.id,
+        fromUser: message.from_user,
+        body:   message.body,
+        sentAt: message.sent_at,
+        readAt: message.read_at
+      }
+    });
+  }
 }
 
 
