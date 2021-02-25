@@ -15,8 +15,7 @@ app.use(cors());
 // get auth token for all routes
 app.use(authenticateJWT);
 
-/** routes */
-
+/* routes */
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
 const messageRoutes = require("./routes/messages");
@@ -25,15 +24,13 @@ app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/messages", messageRoutes);
 
-/** 404 handler */
-
+/* 404 handler */
 app.use(function(req, res, next) {
   const err = new ExpressError("Not Found", 404);
   return next(err);
 });
 
-/** general error handler */
-
+/* general error handler */
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   if (process.env.NODE_ENV != "test") console.error(err.stack);
