@@ -1,39 +1,41 @@
 const bcrypt = require("bcrypt");
 const moment = require("moment");
-const ExpressError = require("./expressError")
+const ExpressError = require("../expressError")
+const db = require('../db');
+const { BCRYPT_WORK_FACTOR } = require('../config');
 
 
 class User {
 
-  constructor({username, password, firstName, lastName, phone}) {
+  constructor(username, password, firstName, lastName, phone) {
     this.username = username;
-    this.password = this.getHashedPassword(password);
+    this.password =  password;
     this.firstName = firstName;
     this.lastName = lastName;
     this.phone = phone;
-
-    // Uncomment the line below if you decide on making register an instance method
-    // this.register(username, hashedPassword, firstName, lastName, phone);
   }
   /* register new user -- returns {username, password, first_name, last_name, phone} */
-  static async register({username, password, firstName, lastName, phone}) { 
+  async register() { 
     try {
+      await this.setHashedPassword()
       const results = await db.query(`
         INSERT INTO users (username, password, first_name, last_name, phone)
         VALUES ($1, $2, $3, $4, $5)
         RETURNING username, password, first_name, last_name, phone`,
-        [username, password, firstName, lastName, phone]);
+        [this.username, this.password, this.firstName, this.lastName, this.phone]);
+
       return results.rows[0];
     } catch (e) {
       if (e.code === '23505') {
-        return next(new ExpressError("Username taken. Please pick another!", 400));
+        return (new ExpressError("Username taken. Please pick another!", 400));
       }
-      return next(e)
+        console.log('This is e: -------------->', e);
+        return  new ExpressError(e, 500);
     }
   }
 
-  static async getHashedPassword(password) {
-    return await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
+  async setHashedPassword() {
+    this.password = await bcrypt.hash(this.password, BCRYPT_WORK_FACTOR);
   }
 
   /* Authenticate: is this username/password valid? Returns boolean. */
@@ -45,7 +47,6 @@ class User {
       [username]);
       
       const user = results.rows[0];
-
       return user ? await bcrypt.compare(password, user.password) : false;
   }
 
