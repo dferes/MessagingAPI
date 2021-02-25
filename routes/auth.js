@@ -30,12 +30,12 @@ router.post('/login', async (req, res, next) => {
 
 router.post("/register", async (req, res, next) => {
     try {
-        let {username, password, first_name, last_name, phone} = req.body;
+        let {username, password, firstName, lastName, phone} = req.body;
         const user = await User.get(username);
         if(!user.message) {
             return res.status(409).json({ error: `User account with username ${username} already exists` });
         }
-        const newUser = new User(username, password, first_name, last_name, phone);
+        const newUser = new User(username, password, firstName, lastName, phone);
         await newUser.register();
 
         let token = jwt.sign({username}, SECRET_KEY);
