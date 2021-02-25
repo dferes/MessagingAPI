@@ -6,18 +6,26 @@ const ExpressError = require('../expressError');
 const router = new express.Router();
 
 
-/** GET / - get list of users.
- *
- * => {users: [{username, first_name, last_name, phone}, ...]}
- *
- **/
+/* GET / - get list of users.
+ * returns {users: [{username, first_name, last_name, phone}, ...]} */
+router.get('/', async () => {
+    try{
+
+    }catch(e) {
+        return next(e);
+    }
+});
 
 
-/** GET /:username - get detail of users.
- *
- * => {user: {username, first_name, last_name, phone, join_at, last_login_at}}
- *
- **/
+/* GET /:username - get detail of users.
+ * returns {user: {username, first_name, last_name, phone, join_at, last_login_at}} */
+router.get('/:username', async () => {
+    try{
+
+    }catch(e) {
+        return next(e);
+    }
+});
 
 
 /** GET /:username/to - get messages to user
@@ -29,6 +37,13 @@ const router = new express.Router();
  *                 from_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
+router.get('/:username/to', async () => {
+    try{
+
+    }catch(e) {
+        return next(e);
+    }
+});
 
 
 /** GET /:username/from - get messages from user
@@ -40,5 +55,12 @@ const router = new express.Router();
  *                 to_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
+router.get('/:username/from', async () => {
+    try{
+
+    }catch(e) {
+        return next(e);
+    }
+});
 
 module.exports = router;
