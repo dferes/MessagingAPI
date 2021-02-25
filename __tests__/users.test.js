@@ -157,64 +157,91 @@ describe("Test the get() method of the User class", () => {
 
 
 describe("Test the messagesFrom() method of the user class", () => {
-  // let message1;
-  // let message2;
+  let message1;
+  let message2;
 
-  // beforeEach( async () => {
-  //   message1 = await Message.create(
-  //     testUser.username,
-  //     testUser2.username,
-  //     "user1 to user2"
-  //   );
-  //   message2 = await Message.create(
-  //     testUser2.username,
-  //     testUser1.username,
-  //     "user2 to user1"
-  //   );
-  // })
+  beforeEach( async () => {
+    await testUser.register();
+    await testUser2.register();
 
-  
+    message1 = await Message.create(
+      testUser.username,
+      testUser2.username,
+      "Hello user2"
+    );
+    message2 = await Message.create(
+      testUser.username,
+      testUser2.username,
+      "Hello again, user2"
+    );
+  })
+
   test('can get 2 messages sent from this user when they have sent a total of 2 messages', async () => {
-    let message1 = await Message.create(
-      testUser.username,
-      testUser2.username,
-      "user1 to user2"
-    );
-    let message2 = await Message.create(
-      testUser2.username,
-      testUser.username,
-      "user2 to user1"
-    );
-    // let messageList = await testUser.messagesFrom();
-    // expect(messageList).toEqual([{
-    //   id: expect.any(Number),
-    //   body: "u1-to-u2",
-    //   sent_at: expect.any(Date),
-    //   read_at: null,
-    //   to_user: {
-    //     username: "test2",
-    //     first_name: "Test2",
-    //     last_name: "Testy2",
-    //     phone: "+14155552222",
-    //   }
-    // }]);
-    // console.log(messageList);
-    expect(true).toBeTruthy();
+    let messageList = await testUser.messagesFrom();
+    expect(messageList.length).toEqual(2);
+    expect(messageList[0]).toEqual({
+      id: 1,
+      to_username: testUser2.username,
+      body: message1.body,
+      sent_at: expect.any(Date),
+      read_at: null
+    });
+    expect(messageList[1]).toEqual({
+      id: 2,
+      to_username: testUser2.username,
+      body: message2.body,
+      sent_at: expect.any(Date),
+      read_at: null
+    })
   });
-//    test('can get messages to user', async function () {
-//     let m = await User.messagesTo("test1");
-//     expect(m).toEqual([{
-//       id: expect.any(Number),
-//       body: "u2-to-u1",
-//       sent_at: expect.any(Date),
-//       read_at: null,
-//       from_user: {
-//         username: "test2",
-//         first_name: "Test2",
-//         last_name: "Testy2",
-//         phone: "+14155552222",
-//       }
-//     }]);
-//   });
+  test('Retrieves an empty message list when a user has not sent any messages', async () => {
+    let messageList = await testUser2.messagesFrom();
+    expect(messageList.length).toEqual(0);
+  });
+
 });
 
+describe("Test the messagesFrom() method of the user class", () => {
+  let message1;
+  let message2;
+
+  beforeEach( async () => {
+    await testUser.register();
+    await testUser2.register();
+
+    message1 = await Message.create(
+      testUser2.username,
+      testUser.username,
+      "Hello user1"
+    );
+    message2 = await Message.create(
+      testUser2.username,
+      testUser.username,
+      "Hello again, user1"
+    );
+  })
+
+  test('can get 2 messages recieved by this user when they have recieved a total of 2 messages', async () => {
+    let messageList = await testUser2.messagesFrom();
+    expect(messageList.length).toEqual(2);
+    expect(messageList[0]).toEqual({
+      id: 1,
+      to_username: testUser.username,
+      body: message1.body,
+      sent_at: expect.any(Date),
+      read_at: null
+    });
+    expect(messageList[1]).toEqual({
+      id: 2,
+      to_username: testUser.username,
+      body: message2.body,
+      sent_at: expect.any(Date),
+      read_at: null
+    })
+  });
+  test('Retrieves an empty message list when a user has not sent any messages', async () => {
+    let messageList = await testUser.messagesFrom();
+    expect(messageList.length).toEqual(0);
+  });
+
+});
