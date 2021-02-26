@@ -94,13 +94,13 @@ class User {
 
 
   /* Return  messages from this user. [{id, to_user, body, sent_at, read_at}] */
-  static async messagesFrom() { 
+  static async messagesFrom(username) { 
     const allMessagesFromUser = await db.query(
       `SELECT id, to_username, body, sent_at, read_at
       FROM messages
       WHERE from_username = $1
       ORDER BY id ASC`,
-      [this.username]);
+      [username]);
 
     return allMessagesFromUser.rows;
   }
