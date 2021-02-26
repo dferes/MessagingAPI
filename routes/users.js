@@ -35,12 +35,17 @@ router.get('/:username', ensureLoggedIn, async (req, res, next) => {
  * => {messages: [{id, body, sent_at, read_at,
  *                 from_user: {username, first_name, last_name, phone}}, ...]}
  */
-router.get('/:username/to', async () => {
-    try{
+router.get('/:username/to', [ensureLoggedIn, ensureCorrectUser], async (req, res, next) => {
+  try{
+    let allMessagesTo = await User.messagesTo(req.user.user.username);
 
-    }catch(e) {
-        return next(e);
+    if (allMessagesTo.length === 0) {
+        return res.status(200).json({ message: "No messages found" });
     }
+    return res.status(200).json({ messages: allMessagesTo });
+  }catch(e) {
+    return next(e);
+  }
 });
 
 
@@ -53,7 +58,7 @@ router.get('/:username/to', async () => {
  *                 to_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
-router.get('/:username/from', async () => {
+router.get('/:username/from', async (req, res, next) => {
     try{
 
     }catch(e) {
