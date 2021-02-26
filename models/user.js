@@ -72,7 +72,7 @@ class User {
       FROM users`
     );
     if (allUsers.rows.length === 0) {
-      return new ExpressError('User not found', 404)
+      return new ExpressError('No users found', 404)
     }
     return allUsers.rows;
   }
