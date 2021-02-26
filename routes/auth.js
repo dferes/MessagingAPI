@@ -32,6 +32,7 @@ router.post("/register", async (req, res, next) => {
     try {
         let {username, password, firstName, lastName, phone} = req.body;
         const user = await User.get(username);
+        
         if(!user.message) {
             return res.status(409).json({ error: `User account with username ${username} already exists` });
         }

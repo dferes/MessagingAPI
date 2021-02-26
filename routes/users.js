@@ -10,12 +10,12 @@ const router = new express.Router();
 /* GET / - get list of users.
  * returns {users: [{username, first_name, last_name, phone}, ...]} */
 router.get('/', ensureLoggedIn, async (req, res, next) => {
-    try{
-        let allUsers = await User.all();
-        return res.status(200).json({ allUsers });
-    }catch(e) {
-        return next(e);
-    }
+  try{
+    let allUsers = await User.all();
+    return res.status(200).json({ users: allUsers });
+  }catch(e) {
+    return next(e);
+  }
 });
 
 
