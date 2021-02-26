@@ -87,6 +87,46 @@ describe("GET /users/", () => {
   });
 });
 
+describe("GET /users/:username", () => {
+  test("Can retrieve a single user when a valid registered username is passed", async () => {
+    let user = await request(app)
+      .get(`/users/${testUser.username}`)
+      .send({ token: userToken });
+
+    expect(user.status).toEqual(200);
+    expect(user.body.user.username).toEqual(testUser.username);
+    expect(user.body.user.first_name).toEqual(testUser.firstName);
+    expect(user.body.user.last_name).toEqual(testUser.lastName);
+    expect(user.body.user.phone).toEqual(testUser.phone);
+    expect(user.body.user.username).toEqual(testUser.username);
+  });
+  test("Failes to retrieve specified user and returns a 401 error message when a JSON Web Token is not sent", async () => {
+    let allUsersResponse = await request(app)
+      .get(`/users/${testUser.username}`)
+      .send({ token: null });
+
+    expect(allUsersResponse.body.error.status).toEqual(401);
+    expect(allUsersResponse.body.error.message).toEqual('Unauthenticated');
+
+  });
+  test("Failes to retrieve specified user and returns 401 error message when JSON Web Token is invalid", async () => {
+    let allUsersResponse = await request(app)
+      .get(`/users/${testUser.username}`)
+      .send({ token: `${userToken}0` });
+
+    expect(allUsersResponse.body.error.status).toEqual(401);
+    expect(allUsersResponse.body.message).toEqual('invalid signature');
+  });
+  test("Failes to retrieve specified user and returns 401 error message when JSON Web Token is malformed", async () => {
+    let allUsersResponse = await request(app)
+      .get(`/users/${testUser.username}`)
+      .send({ token: 'blarghhh' });
+
+    expect(allUsersResponse.body.error.status).toEqual(401);
+    expect(allUsersResponse.body.message).toEqual('jwt malformed');
+  });
+});
+
 
 afterAll(async () => {
     await db.end();
