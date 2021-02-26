@@ -69,7 +69,8 @@ class User {
   static async all() { 
     const allUsers = await db.query(
       `SELECT username, first_name, last_name, phone
-      FROM users`
+      FROM users
+      ORDER BY join_at ASC`
     );
     if (allUsers.rows.length === 0) {
       return new ExpressError('No users found', 404)
@@ -93,11 +94,12 @@ class User {
 
 
   /* Return  messages from this user. [{id, to_user, body, sent_at, read_at}] */
-  async messagesFrom() { 
+  static async messagesFrom() { 
     const allMessagesFromUser = await db.query(
       `SELECT id, to_username, body, sent_at, read_at
       FROM messages
-      WHERE from_username = $1`,
+      WHERE from_username = $1
+      ORDER BY id ASC`,
       [this.username]);
 
     return allMessagesFromUser.rows;
@@ -105,12 +107,13 @@ class User {
 
 
   /* Return messages to this user [{id, from_user, body, sent_at, read_at}] */
-  async messagesTo() { 
+  static async messagesTo(username) { 
     const allMessagesToUser = await db.query(
       `SELECT id, from_username, body, sent_at, read_at
       FROM messages
-      WHERE to_username = $1`,
-      [this.username]);
+      WHERE to_username = $1
+      ORDER BY id ASC`,
+      [username]);
 
       return allMessagesToUser.rows;
   }
