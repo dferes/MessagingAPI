@@ -21,6 +21,7 @@ function ensureLoggedIn(req, res, next) {
     const payload = jwt.decode(req.body.token); 
     if (!payload.user) return next({ status: 401, message: "You must be logged in" });
     
+    req.user = payload;
     return next();
   }
   catch(e) {
