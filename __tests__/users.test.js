@@ -173,7 +173,7 @@ describe("Test the messagesFrom() method of the user class", () => {
   })
 
   test('can get 2 messages sent from this user when they have sent a total of 2 messages', async () => {
-    let messageList = await testUser.messagesFrom();
+    let messageList = await User.messagesFrom(testUser.username);
     expect(messageList.length).toEqual(2);
     expect(messageList[0]).toEqual({
       id: 1,
@@ -191,7 +191,7 @@ describe("Test the messagesFrom() method of the user class", () => {
     })
   });
   test('Retrieves an empty message list when a user has not sent any messages', async () => {
-    let messageList = await testUser2.messagesFrom();
+    let messageList = await User.messagesFrom(testUser2.username);
     expect(messageList.length).toEqual(0);
   });
 
@@ -218,7 +218,7 @@ describe("Test the messagesFrom() method of the user class", () => {
   })
 
   test('can get 2 messages recieved by this user when they have recieved a total of 2 messages', async () => {
-    let messageList = await testUser2.messagesFrom();
+    let messageList = await User.messagesFrom(testUser2.username);
     expect(messageList.length).toEqual(2);
     expect(messageList[0]).toEqual({
       id: 1,
@@ -236,7 +236,7 @@ describe("Test the messagesFrom() method of the user class", () => {
     })
   });
   test('Retrieves an empty message list when a user has not sent any messages', async () => {
-    let messageList = await testUser.messagesFrom();
+    let messageList = await User.messagesFrom(testUser.user);
     expect(messageList.length).toEqual(0);
   });
 
