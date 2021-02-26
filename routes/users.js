@@ -21,24 +21,20 @@ router.get('/', ensureLoggedIn, async (req, res, next) => {
 
 /* GET /:username - get detail of users.
  * returns {user: {username, first_name, last_name, phone, join_at, last_login_at}} */
-router.get('/:username', async () => {
-    try{
-
-    }catch(e) {
-        return next(e);
-    }
+router.get('/:username', ensureLoggedIn, async (req, res, next) => {
+  try{
+    let user = await User.get(req.user.user.username);
+    return res.status(200).json({ user: user });
+  }catch(e) {
+    return next(e);
+  }
 });
 
 
-/** GET /:username/to - get messages to user
- *
- * => {messages: [{id,
- *                 body,
- *                 sent_at,
- *                 read_at,
+/* GET /:username/to - get messages to user
+ * => {messages: [{id, body, sent_at, read_at,
  *                 from_user: {username, first_name, last_name, phone}}, ...]}
- *
- **/
+ */
 router.get('/:username/to', async () => {
     try{
 
