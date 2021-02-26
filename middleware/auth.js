@@ -15,11 +15,17 @@ function authenticateJWT(req, res, next) {
 
 /* Middleware: Requires user is authenticated. */
 function ensureLoggedIn(req, res, next) {
-  if (!req.user) {
-    return next({ status: 401, message: "Unauthorized" });
-  } else {
+  if (!req.body.token) return next({ status: 401, message: "Unauthenticated" })
+  try{
+    jwt.verify(req.body.token, SECRET_KEY);
+    const payload = jwt.decode(req.body.token); 
+    if (!payload.user) return next({ status: 401, message: "You must be logged in" });
+    
     return next();
   }
+  catch(e) {
+    return next({ status: 401, message: e.message })
+  }  
 }
 
 /* Middleware: Requires correct username. */
