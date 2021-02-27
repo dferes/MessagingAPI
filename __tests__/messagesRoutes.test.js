@@ -136,11 +136,95 @@ describe("GET /messages/:id", () => {
     let message = await request(app)
       .get('/messages/blahBlahBlah')
       .send({ token: userToken });
-
-    console.log(message.body);  
+  
     expect(message.status).toEqual(400);
     expect(message.body.error).toEqual('id must be an integer');
   });
+});
+
+describe("POST /messages/", () => {
+  test(`Creates a new message when a valid message body and registered recipient username are passed 
+    as parameters and the JWT is valid`, async () => {
+    let message = await request(app)
+      .post('/messages/')
+      .send({ 
+        token:  userToken,
+        message: {
+          toUsername: testUser2.username,
+          body: 'Hello there, user 2'
+        }
+     });
+  
+    expect(message.status).toEqual(201);
+    expect(message.body.message.id).toEqual(expect.any(Number));
+    expect(message.body.message.from_username).toEqual(testUser.username);
+    expect(message.body.message.to_username).toEqual(testUser2.username);
+    expect(message.body.message.sent_at).toEqual(expect.any(String));
+  });
+  test(`Fails to create a new message and returns a 401 error when a valid message body and registered 
+    recipient username and passed as parameters but no JWT is passed`, async () => {
+    let message = await request(app)
+      .post('/messages/')
+      .send({ 
+        token:  null,
+        message: {
+          toUsername: testUser2.username,
+          body: 'Hello there, user 2'
+        }
+    });
+  });
+  test(`Fails to create a new message and returns a 404 error when a valid message body JWT are 
+    passed, but INVALID recipient username is provided`, async () => {
+    let message = await request(app)
+      .post('/messages/')
+      .send({ 
+        token:  userToken,
+        message: {
+          toUsername: 'someGuy123',
+          body: 'Hello there'
+        }  
+    });
+
+    expect(message.status).toEqual(404);
+    expect(message.body.error).toEqual('User someGuy123 not found');
+  });
+  test(`Fails to create a new message and returns a 400 error when a registered recipient and valid
+    JWT are passed, but no message body paramater is provided`, async () => {
+    let message = await request(app)
+      .post('/messages/')
+      .send({ 
+        token:  userToken,
+        message: {
+          toUsername: testUser2.username,
+          body: null
+        }  
+    });
+
+    expect(message.status).toEqual(400);
+    expect(message.body.error).toEqual('Message must contain a body');
+  });  
+});
+
+describe("POST /messages/", () => {
+  test(`Creates a new message when a valid message body and registered recipient username are passed 
+    as parameters and the JWT is valid`, async () => {
+    let message = await request(app)
+      .post('/messages/')
+      .send({ 
+        token:  userToken,
+        message: {
+          toUsername: testUser2.username,
+          body: 'Hello there, user 2'
+        }
+      });
+    
+    expect(message.status).toEqual(201);
+    expect(message.body.message.id).toEqual(expect.any(Number));
+    expect(message.body.message.from_username).toEqual(testUser.username);
+    expect(message.body.message.to_username).toEqual(testUser2.username);
+    expect(message.body.message.sent_at).toEqual(expect.any(String));
+  });
+
 });
 
 
