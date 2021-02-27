@@ -7,14 +7,11 @@ const { authenticateJWT, ensureLoggedIn, ensureCorrectUser } = require('../middl
 const router = new express.Router();
 
 
-/** GET /:id - get detail of message.
+/* GET /:id - get detail of message.
  *
- * => {message: {id,
- *               body,
- *               sent_at,
- *               read_at,
- *               from_user: {username, first_name, last_name, phone},
- *               to_user: {username, first_name, last_name, phone}}
+ * => {message: {id, body, sent_at, read_at,
+ *       from_user: {username, first_name, last_name, phone},
+ *       to_user: {username, first_name, last_name, phone}}
  */
 router.get('/:id', ensureLoggedIn, async (req, res, next) => {
   if (! req.params.id) return res.status(400).json({ error: 'id paramater must be provided' });
@@ -36,17 +33,31 @@ router.get('/:id', ensureLoggedIn, async (req, res, next) => {
 /** POST / - post message.
  *
  * {to_username, body} =>
- *   {message: {id, from_username, to_username, body, sent_at}}
- *
- **/
+ *   {message: {id, from_username, to_username, body, sent_at}} */
+router.post('/', ensureLoggedIn, async (req, res, next) => {   
+  try {
+    let message = req.body.message;  
+    const newMessage = await Message.create(req.user.user.username, message.toUsername, message.body);
+
+    if(newMessage.message) {
+      return res.status(newMessage.status).json({ error: newMessage.message });
+    }
+    
+    return res.status(201).json({ message: newMessage });
+  } catch(e) {
+      return next(e);
+  }  
+});
 
 
-/** POST/:id/read - mark message as read:
- *
- *  => {message: {id, read_at}}
- *
- * Make sure that the only the intended recipient can mark as read.
- *
- **/
+/* POST/:id/read - mark message as read:
+ *  => {message: {id, read_at}} */
+router.post('/:id/read', [ensureLoggedIn, ensureCorrectUser], async (req, res, next) => {
+  try {
+    
+  }catch(e) {
+    return next(e);  
+  }  
+})
 
 module.exports = router;
