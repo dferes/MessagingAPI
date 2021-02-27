@@ -32,9 +32,7 @@ router.get('/:username', ensureLoggedIn, async (req, res, next) => {
 
 
 /* GET /:username/to - get messages to user
- * => {messages: [{id, body, sent_at, read_at,
- *                 from_user: {username, first_name, last_name, phone}}, ...]}
- */
+ * => {messages: [{id, body, sent_at, read_at, from_username}, ...]} */
 router.get('/:username/to', [ensureLoggedIn, ensureCorrectUser], async (req, res, next) => {
   try{
     let allMessagesTo = await User.messagesTo(req.user.user.username);
@@ -51,18 +49,17 @@ router.get('/:username/to', [ensureLoggedIn, ensureCorrectUser], async (req, res
 
 /** GET /:username/from - get messages from user
  *
- * => {messages: [{id,
- *                 body,
- *                 sent_at,
- *                 read_at,
- *                 to_user: {username, first_name, last_name, phone}}, ...]}
- *
- **/
-router.get('/:username/from', async (req, res, next) => {
-    try{
-
+ * => {messages: [{id, body, sent_at, read_at, to_username}, ...]} */
+router.get('/:username/from',[ensureLoggedIn, ensureCorrectUser], async (req, res, next) => {
+  try{
+    let allMessagesFrom = await User.messagesFrom(req.user.user.username);
+      if (allMessagesFrom.length === 0) {
+          return res.status(200).json({ message: "No messages found" });
+      }
+      
+      return res.status(200).json({ messages: allMessagesFrom });
     }catch(e) {
-        return next(e);
+      return next(e);
     }
 });
 
