@@ -7,7 +7,7 @@ class Message {
   /* register new message -- returns {id, from_username, to_username, body, sent_at} */
   static async create(from_username, to_username, body) {
     if (!body) {
-      return new ExpressError('Message must contain a body', 404);
+      return new ExpressError('Message must contain a body', 400);
     }
     const fromUser = await db.query(
       `SELECT * FROM users WHERE username = $1`, [from_username]);
