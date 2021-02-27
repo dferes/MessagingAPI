@@ -52,9 +52,19 @@ router.post('/', ensureLoggedIn, async (req, res, next) => {
 
 /* POST/:id/read - mark message as read:
  *  => {message: {id, read_at}} */
-router.post('/:id/read', [ensureLoggedIn, ensureCorrectUser], async (req, res, next) => {
-  try {
-    
+router.post('/:id/read', ensureLoggedIn, async (req, res, next) => {
+  try {  
+    const foundMessage = await Message.get(req.params.id);
+
+    if(!foundMessage.to_user) {
+      console.log(foundMessage.error);
+      return res.status(foundMessage.status).json({ error: foundMessage.message });
+    }
+    if (req.user.user.username !== foundMessage.to_user.username){
+      return res.status(401).json({ eror: 'Unauthorized'})
+    }
+    let markAsRead = await Message.markRead(foundMessage.id);
+    return res.status(200).json({ message: markAsRead });
   }catch(e) {
     return next(e);  
   }  
