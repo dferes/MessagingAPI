@@ -6,12 +6,12 @@ const app = require("../app");
 const db = require("../db");
 const User = require("../models/user");
 const Message = require("../models/message");
-const { all } = require("../models/user");
 
 
 let testUser;
 let testUser2;
 let userToken;
+let userToken2;
 
 beforeEach(async () => {
   testUser = new User(
@@ -132,17 +132,17 @@ describe("GET /users/:username", () => {
   
 describe('GET /users/:username/to', () => {
   beforeEach( async () => {
-      message1 = await Message.create(
-          testUser2.username,
-          testUser.username,
-          "Hello, user 1"
-        );
-          message2 = await Message.create(
-          testUser2.username,
-          testUser.username,
-          "Hello again, user 1"
-        );
-  })
+    message1 = await Message.create(
+      testUser2.username,
+      testUser.username,
+      "Hello, user 1"
+    );
+    message2 = await Message.create(
+      testUser2.username,
+      testUser.username,
+      "Hello again, user 1"
+    );
+  });
 
   test('Retrieves a list of all messages sent TO this user when a registered username is passed as a parameter', async ()=> {
     let allMessagesTo = await request(app)
@@ -191,6 +191,67 @@ describe('GET /users/:username/to', () => {
   });
 });
 
+describe('GET /users/:username/to', () => {
+  beforeEach( async () => {
+    message1 = await Message.create(
+      testUser.username,
+      testUser2.username,
+      "Hello, user 2"
+    );
+    message2 = await Message.create(
+      testUser.username,
+      testUser2.username,
+      "Hello again, user 2"
+    );
+  });
+  
+  test('Retrieves a list of all messages sent FROM this user when a registered username is passed as a parameter', async ()=> {
+    let allMessagesFrom = await request(app)
+      .get(`/users/${testUser.username}/from`)
+      .send({ token: userToken });
+
+    expect(allMessagesFrom.body.messages.length).toEqual(2);
+    expect(allMessagesFrom.body.messages[0].id).toEqual(expect.any(Number));
+    expect(allMessagesFrom.body.messages[0].to_username).toEqual(testUser2.username);
+    expect(allMessagesFrom.body.messages[0].body).toEqual(message1.body);
+      
+    expect(allMessagesFrom.body.messages[1].id).toEqual(expect.any(Number));
+    expect(allMessagesFrom.body.messages[1].to_username).toEqual(testUser2.username);
+    expect(allMessagesFrom.body.messages[1].body).toEqual(message2.body);
+  });
+  test('Fails to retrieve a list of all messages and returns a 401 error message when a JSON Web Token is not sent', async ()=> {
+    let allMessagesFrom = await request(app)
+      .get(`/users/${testUser.username}/from`)
+      .send({ token: null });
+   
+    expect(allMessagesFrom.status).toEqual(401);
+    expect(allMessagesFrom.body.message).toEqual('Unauthenticated');;
+  });
+  test('Fails to retrieve list of messages and returns a 401 error message when a JSON Web Token is invalid', async ()=> {
+    let allMessagesFrom = await request(app)
+      .get(`/users/${testUser.username}/from`)
+      .send({ token: `${userToken}0` });
+    
+    expect(allMessagesFrom.status).toEqual(401);
+    expect(allMessagesFrom.body.message).toEqual('invalid signature');
+  });
+  test('Fails to retrieve list of messages and returns a 401 error message when a JSON Web Token is malformed', async ()=> {
+    let allMessagesFrom = await request(app)
+      .get(`/users/${testUser.username}/from`)
+      .send({ token: 'blahBlah121' });
+      
+    expect(allMessagesFrom.status).toEqual(401);
+    expect(allMessagesFrom.body.message).toEqual('jwt malformed');
+  });
+  test('Fails to retrieve list of messages and returns a 401 error message when a JSON Web Token is for another user', async ()=> {
+    let allMessagesFrom = await request(app)
+      .get(`/users/${testUser.username}/from`)
+      .send({ token: userToken2 });
+  
+    expect(allMessagesFrom.status).toEqual(401);
+    expect(allMessagesFrom.body.message).toEqual('Unauthorized');
+  });
+});
 
 afterAll(async () => {
     await db.end();
