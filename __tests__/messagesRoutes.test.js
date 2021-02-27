@@ -227,6 +227,19 @@ describe("POST /messages/", () => {
 
 });
 
+describe("POST /messages/:id/read", () => {
+  test(`Retrieves the specidfied message when a valid id paramater passed and the JWT is valid`, async () => {
+    let message = await request(app)
+      .post(`/messages/${message1.id}/read`)
+      .send({ token:  userToken });
+    console.log('Outer response: --------->', message.body);
+    expect(message.status).toEqual(200);
+    // expect(message.body.message.id).toEqual(expect.any(Number));
+    // expect(message.body.message.from_username).toEqual(testUser.username);
+    // expect(message.body.message.to_username).toEqual(testUser2.username);
+    // expect(message.body.message.sent_at).toEqual(expect.any(String));
+  });
+});
 
 afterAll(async () => {
   await db.end();
