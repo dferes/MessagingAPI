@@ -68,7 +68,8 @@ class Message {
           FROM messages AS m
             JOIN users AS f ON m.from_username = f.username
             JOIN users AS t ON m.to_username = t.username
-          WHERE m.id = $1`,
+          WHERE m.id = $1
+          LIMIT 1`,
         [id]);
 
     let message = result.rows[0];
