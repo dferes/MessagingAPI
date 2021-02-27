@@ -80,13 +80,13 @@ describe("Test the create() method of the Message class", () => {
     expect(errorMessage.status).toEqual(404);
     expect(errorMessage.message).toEqual('User invalidUser not found');
   });
-  test("Returns a 404 error message when the message body is null", async () => {
+  test("Returns a 400 error message when the message body is null", async () => {
     let errorMessage = await Message.create(
       testUser.username,
       testUser.username,
       null
     );
-    expect(errorMessage.status).toEqual(404);
+    expect(errorMessage.status).toEqual(400);
     expect(errorMessage.message).toEqual('Message must contain a body');
   });
 });
